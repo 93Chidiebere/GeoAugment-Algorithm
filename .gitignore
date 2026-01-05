@@ -1,0 +1,15 @@
+# Python compiled files
+__pycache__/
+*.py[cod]
+
+# Environment folders
+.env/
+.venv/
+geoaugment.egg-info/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
