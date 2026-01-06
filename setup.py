@@ -18,7 +18,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "geoaugment=geo_augment.cli.main:cli"
+            "geoaugment=geo_augment.cli.main:main"
         ]
     },
     python_requires=">=3.10"
