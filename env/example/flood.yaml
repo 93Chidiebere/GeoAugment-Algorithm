@@ -1,0 +1,17 @@
+synthesis:
+  perturbation_strength: 0.15
+  spatial_scale: 30
+  risk_percentile: 90.0
+  random_seed: 42
+
+constraints:
+  enforce_bounds: true
+  enforce_monotonic_downhill: true
+  enforce_spatial_smoothness: true
+  smoothness_kernel_size: 5
+  downhill_weight: 1.0
+
+latent:
+  noise_type: gaussian
+  normalize: true
+  apply_low_frequency_bias: true
