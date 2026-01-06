@@ -2,6 +2,8 @@
 
 **GeoAugment** is a **constraint-aware synthetic geospatial data generation engine** designed to address **data scarcity in GeoAI**, particularly in **flood risk analysis**, **urban systems**, and **environmental modeling** in data-limited regions.
 
+It generates physically plausible synthetic labels and features from limited geospatial inputs (e.g., DEMs), enabling robust training of downstream Machine Learning (ML) and Deep Learning (DL) models.
+
 GeoAugment does **not** train machine learning models.  
 GeoAugment **creates high-quality synthetic training data** that can later be used by ML or DL frameworks such as **PyTorch**, **TensorFlow**, or **scikit-learn**.
 
@@ -15,6 +17,8 @@ In many regions (especially across the Global South):
 - Historical flood records are incomplete
 - Satellite imagery is noisy, cloudy, or sparse
 - Urban layouts differ significantly from Global North datasets
+- Ground truth data is expensive or unavailable
+- ML/DL models fail due to label scarcity, not model weakness
 
 Most GeoAI pipelines silently assume that **clean labels already exist**.  
 GeoAugment exists to solve that upstream problem.
@@ -205,6 +209,36 @@ Each stage is modular and inspectable.
 
 ---
 
+## Tile-Based Dataset Generation
+
+Large rasters are split into fixed-size overlapping tiles to:
+
+- Fit ML/DL input requirements
+
+- Increase dataset size
+
+- Preserve spatial locality
+
+
+## **Architecture Overview**
+
+```scss
+DEM (.tif)
+   ↓
+Feature Extraction
+   ↓
+Constraint-Aware Synthesis
+   ↓
+Continuous Flood Risk
+   ↓
+Thresholding (optional)
+   ↓
+Tile Generation
+   ↓
+Export (NumPy / PyTorch)
+```
+
+
 ## **Installation**
 
 ```bash
@@ -219,6 +253,30 @@ Validate Configuration (Dry-Run)
 ```bash
 geoaugment floods generate --config flood.yaml --dry-run
 ```
+
+## Output formats
+
+- npz → NumPy-based pipelines
+- torch → PyTorch training pipelines
+
+
+### Python Usage
+
+```python
+from geo_augment.domains.floods.api import synthesize_flood_risk
+
+synthetic_risk = synthesize_flood_risk(dem, n_samples=3)
+```
+
+### Use the output in:
+
+- PyTorch
+- TensorFlow
+- scikit-learn
+- XGBoost
+- Any GeoAI pipeline
+
+
 
 Generate Dataset
 
@@ -301,6 +359,24 @@ GeoAugment is meant to be infrastructure, not a black box.
 - TensorFlow export
 - GeoTIFF export
 - R bindings
+
+
+## Current Domains
+
+✅ Flood Risk (v0.1.0)
+⏳ Road Connectivity (planned)
+⏳ Urban Morphology (planned)
+
+
+## Who Should Use GeoAugment
+
+- GeoAI researchers
+- Data scientists in climate, urban planning, disaster risk
+- ML engineers facing geospatial data scarcity
+- Public-sector analytics teams
+- Researchers working with satellite or drone imagery
+
+
 
 ## LICENSE
 MIT License

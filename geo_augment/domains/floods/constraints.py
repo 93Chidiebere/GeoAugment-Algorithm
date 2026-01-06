@@ -1,36 +1,29 @@
 import numpy as np
+from scipy.ndimage import gaussian_filter
 
 
-class FloodConstraints:
+def apply_flood_constraints(
+    latent_field: np.ndarray,
+    dem: np.ndarray,
+    constraints,
+) -> np.ndarray:
     """
-    Physics-inspired constraints for flood susceptibility.
-    Enforces monotonic relationships without hard simulation.
+    Apply physical and statistical constraints to latent flood field.
     """
 
-    def __init__(
-        self,
-        elevation_weight: float = 0.6,
-        slope_weight: float = 0.4
-    ):
-        self.elevation_weight = elevation_weight
-        self.slope_weight = slope_weight
+    field = latent_field.copy()
 
-    def risk_score(
-        self,
-        elevation: np.ndarray,
-        slope: np.ndarray
-    ) -> np.ndarray:
-        """
-        Computes continuous flood risk score (0–1).
-        Lower elevation and lower slope increase risk.
-        """
-        elevation_term = 1.0 - elevation
-        slope_term = 1.0 - slope
+    if constraints.enforce_monotonic_downhill:
+        elevation_norm = (dem - dem.min()) / (dem.max() - dem.min() + 1e-8)
+        downhill_bias = 1.0 - elevation_norm
+        field = field + constraints.downhill_weight * downhill_bias
 
-        risk = (
-            self.elevation_weight * elevation_term +
-            self.slope_weight * slope_term
-        )
+    if constraints.enforce_spatial_smoothness:
+        field = gaussian_filter(field, sigma=constraints.smoothness_kernel_size)
 
-        return np.clip(risk, 0.0, 1.0)
+    if constraints.enforce_bounds:
+        field = np.clip(field, 0.0, 1.0)
+
+    return field
+
     
