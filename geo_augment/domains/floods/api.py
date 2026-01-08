@@ -9,7 +9,6 @@ from geo_augment.domains.floods.validation import validate_all_flood_specs
 from geo_augment.domains.floods.latent import generate_latent_flood_field
 from geo_augment.domains.floods.constraints import apply_flood_constraints
 from geo_augment.domains.floods.calibration import calibrate_flood_risk
-from geo_augment.domains.floods.threshold import apply_threshold
 
 
 def synthesize_flood_risk(
@@ -64,13 +63,3 @@ def synthesize_flood_risk(
         outputs.append(calibrated)
 
     return outputs
-
-
-def synthesize_flood_labels(
-    risk: np.ndarray,
-    threshold: float = 0.6,
-):
-    """
-    Derive binary flood labels from continuous risk.
-    """
-    return apply_threshold(risk, threshold=threshold)

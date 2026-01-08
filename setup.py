@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="geoaugment",
-    version="0.1.1",
+    version="0.1.2",
     description="Constraint-aware synthetic geospatial data augmentation engine for GeoAI",
     long_description=long_description,
     long_description_content_type="text/markdown",
