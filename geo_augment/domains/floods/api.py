@@ -5,15 +5,14 @@ from geo_augment.domains.floods.spec import (
     FloodConstraints,
     LatentFloodFieldSpec,
 )
-from geo_augment.domains.floods.validation import (
-    validate_all_flood_specs,
-)
+from geo_augment.domains.floods.validation import validate_all_flood_specs
 from geo_augment.domains.floods.latent import generate_latent_flood_field
 from geo_augment.domains.floods.constraints import apply_flood_constraints
 from geo_augment.domains.floods.calibration import calibrate_flood_risk
+from geo_augment.domains.floods.threshold import apply_threshold
 
 
-def synthesize_flood_labels(
+def synthesize_flood_risk(
     dem: np.ndarray,
     synthesis_spec: FloodSynthesisSpec,
     constraints: FloodConstraints,
@@ -21,14 +20,11 @@ def synthesize_flood_labels(
     n_samples: int = 1,
 ):
     """
-    Generate synthetic flood risk labels from DEM.
+    Generate continuous synthetic flood risk surfaces (0–1).
 
-    Validation is enforced before any computation.
+    This is the canonical GeoAugment flood synthesis API.
     """
 
-    # -----------------------------
-    # 1. Validate all specs (fail fast)
-    # -----------------------------
     validate_all_flood_specs(
         synthesis=synthesis_spec,
         constraints=constraints,
@@ -41,9 +37,6 @@ def synthesize_flood_labels(
     outputs = []
 
     for i in range(n_samples):
-        # -----------------------------
-        # 2. Generate latent flood field
-        # -----------------------------
         latent = generate_latent_flood_field(
             dem=dem,
             perturbation_strength=synthesis_spec.perturbation_strength,
@@ -56,18 +49,12 @@ def synthesize_flood_labels(
             latent_spec=latent_spec,
         )
 
-        # -----------------------------
-        # 3. Apply physical constraints
-        # -----------------------------
         constrained = apply_flood_constraints(
             latent_field=latent,
             dem=dem,
             constraints=constraints,
         )
 
-        # -----------------------------
-        # 4. Calibrate to risk percentile
-        # -----------------------------
         calibrated = calibrate_flood_risk(
             field=constrained,
             percentile=synthesis_spec.risk_percentile,
@@ -77,3 +64,13 @@ def synthesize_flood_labels(
         outputs.append(calibrated)
 
     return outputs
+
+
+def synthesize_flood_labels(
+    risk: np.ndarray,
+    threshold: float = 0.6,
+):
+    """
+    Derive binary flood labels from continuous risk.
+    """
+    return apply_threshold(risk, threshold=threshold)
